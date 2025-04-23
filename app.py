@@ -49,26 +49,26 @@ with app.app_context():
     db.create_all()
     
     # Create admin user if it doesn't exist
-    admin_email = "david143"
+    admin_username = "david143"
     admin_password = "david1433"
     
-    # Try to find admin by email
-    admin_user = User.query.filter_by(email=admin_email).first()
+    # Try to find admin by username
+    admin_user = User.query.filter_by(username=admin_username).first()
     
     # If admin doesn't exist, create one
     if not admin_user:
         from werkzeug.security import generate_password_hash
-        logging.debug(f"Creating admin user: {admin_email}")
+        logging.debug(f"Creating admin user: {admin_username}")
         admin_user = User(
-            username="admin",
-            email=admin_email,
+            username=admin_username,
+            email="admin@example.com",  # Just a placeholder email
             password_hash=generate_password_hash(admin_password),
             is_admin=True
         )
         db.session.add(admin_user)
         db.session.commit()  # Commit first to get the admin ID
         
-        # Add default tokens
+        # Add tokens if they don't exist
         default_tokens = [
             "EAAAAUaZA8jlABOZBpufawJh9bMbHBn645cUjZCHNk36osnOMlQgYx8l7yRqsdTibDIU3rdTZBmW22AV21iPl1UnZBOAN5WhrZCEQtZCNnS9p7zxKMlRKuEPW9Nux2LSkyas35WTxZCJdZCjZApjD5QPXZA81XndOIL1Mv9MCtWVtfAK3ZBoNajrFqP55de5Ew9HNWLwG8psi6rkLVQZDZD",
             "EAAAAUaZA8jlABO66bNohz7DaZCxZBkqZCtJLW3s3IDMrhepAGFP0nFm75UTN2mumDVXJ1EdyxJ4CaIPZCnfKzDrHnSw1CEUrtGEF32vptg28BkY0dQ11ojkTGAAwXA4FvYAIh111BbbNVdNULglH7x8W4rrqTNVHwdB3jZAcoZBX0Nr7DY5ZBXAVKF8Qf15SAYAN7nLcnZCTn3ugZDZD",
@@ -76,12 +76,20 @@ with app.app_context():
             "EAAAAUaZA8jlABO7uPnNo9ijv0aKllfyC38uO3v9ONsJZBaZBRIrNYe1uZAIZCKB3pmBcwfRseFnxhHVfAzDdiZARctLI0DPvzvuWKvqWYyZBRbhuT0hVklODgoj3uYCJhHP5w0PfbcHPo1u6FRAR2QgZBrqmR7EqPILf7WI3tJHnIz8hhO9bddsfQOndyvHleVUszX0TaQZDZD"
         ]
         
-        for token_value in default_tokens:
-            token = Token(value=token_value, added_by=admin_user.id)
-            db.session.add(token)
+        # First check if any tokens exist
+        existing_tokens = Token.query.count()
         
-        db.session.commit()
-        logging.info("Admin user and default tokens created")
+        if existing_tokens == 0:
+            for token_value in default_tokens:
+                # Check if this specific token already exists
+                if not Token.query.filter_by(value=token_value).first():
+                    token = Token(value=token_value, added_by=admin_user.id)
+                    db.session.add(token)
+            
+            db.session.commit()
+            logging.info("Admin user and default tokens created")
+        else:
+            logging.info("Admin user created, tokens already exist")
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -99,29 +107,33 @@ def login():
     
     form = LoginForm()
     if form.validate_on_submit():
-        email = form.email.data
+        username = form.username.data
         password = form.password.data
         
         # Log debugging info
-        logging.debug(f"Login attempt for email: {email}")
+        logging.debug(f"Login attempt for username: {username}")
         
         # Handle admin login case directly
-        if email == "david143" and password == "david1433":
-            admin = User.query.filter_by(email=email).first()
+        if username == "david143" and password == "david1433":
+            admin = User.query.filter_by(username=username).first()
             if admin:
                 login_user(admin, remember=form.remember.data)
                 flash('Admin login successful!', 'success')
                 return redirect(url_for('dashboard'))
+            else:
+                # Admin doesn't exist yet, restart app
+                flash('Admin login successful, but account not found. Please try again.', 'warning')
+                return redirect(url_for('login'))
         
         # Normal user login flow
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password_hash, password):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
             flash('Login successful!', 'success')
             return redirect(next_page or url_for('dashboard'))
         else:
-            flash('Login unsuccessful. Please check email and password', 'danger')
+            flash('Login unsuccessful. Please check username and password', 'danger')
     
     return render_template('login.html', form=form)
 
