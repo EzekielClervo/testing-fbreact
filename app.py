@@ -24,9 +24,16 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Configure database - handle Render PostgreSQL URLs correctly
 database_url = os.environ.get("DATABASE_URL", "sqlite:///fb_react_tool.db")
+
+# Handle placeholder database URL from render.yaml
+if database_url.startswith("${") or "${" in database_url:
+    logging.warning("Placeholder database URL detected. Using SQLite instead.")
+    database_url = "sqlite:///fb_react_tool.db"
+
 # Ensure PostgreSQL URLs from Render are properly formatted for SQLAlchemy
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
+
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
