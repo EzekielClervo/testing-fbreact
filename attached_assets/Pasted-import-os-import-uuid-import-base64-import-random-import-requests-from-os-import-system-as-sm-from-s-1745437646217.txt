@@ -1,0 +1,155 @@
+import os
+import uuid
+import base64
+import random
+import requests
+from os import system as sm
+from sys import platform as pf
+from time import sleep as sp
+from urllib.parse import urlparse, parse_qs
+from rich import print as rp
+from rich.panel import Panel as pan
+
+# ─── Color Definitions ───────────────────────────────────────────────────────
+R = "[bold red]"
+G = "[bold green]"
+Y = "[bold yellow]"
+B = "[bold blue]"
+M = "[bold magenta]"
+C = "[bold cyan]"
+W = "[bold white]"
+
+# ─── Static Tokens ───────────────────────────────────────────────────────────
+TOKENS = [
+    "EAAAAUaZA8jlABOZBpufawJh9bMbHBn645cUjZCHNk36osnOMlQgYx8l7yRqsdTibDIU3rdTZBmW22AV21iPl1UnZBOAN5WhrZCEQtZCNnS9p7zxKMlRKuEPW9Nux2LSkyas35WTxZCJdZCjZApjD5QPXZA81XndOIL1Mv9MCtWVtfAK3ZBoNajrFqP55de5Ew9HNWLwG8psi6rkLVQZDZD",
+    "EAAAAUaZA8jlABO66bNohz7DaZCxZBkqZCtJLW3s3IDMrhepAGFP0nFm75UTN2mumDVXJ1EdyxJ4CaIPZCnfKzDrHnSw1CEUrtGEF32vptg28BkY0dQ11ojkTGAAwXA4FvYAIh111BbbNVdNULglH7x8W4rrqTNVHwdB3jZAcoZBX0Nr7DY5ZBXAVKF8Qf15SYAN7nLcnZCTn3ugZDZD",
+    "EAAAAUaZA8jlABO5zZBlCvDHUYzQv1x4leVJ6ZCVYx3JJmfqQwMiTGZBJV6KTSZChUTeZA87PWuEUhh9OuFjQIT7gOyHwIJyDXVK7DtHd3YtFqZAFpmFT6D2D7MXLPz10eOO453QuOScbDQBEqy3eKeFP3IRgZAr3EQmlUKG8GGsZB6T8JgPaiXhgeezZCQaYNdOWveqs1cRAZDZD",
+    "EAAAAUaZA8jlABO7uPnNo9ijv0aKllfyC38uO3v9ONsJZBaZBRIrNYe1uZAIZCKB3pmBcwfRseFnxhHVfAzDdiZARctLI0DPvzvuWKvqWYyZBRbhuT0hVklODgoj3uYCJhHP5w0PfbcHPo1u6FRAR2QgZBrqmR7EqPILf7WI3tJHnIz8hhO9bddsfQOndyvHleVUszX0TaQZDZD"
+]
+
+# ─── UI Functions ────────────────────────────────────────────────────────────
+def randc():
+    return random.choice([R, G, Y, B, M, C])
+
+def logo():
+    rp(pan(f"""{randc()}
+  ______________________________
+ /  _____/\\_   _____/\\__    ___/
+/   \\  ___ |    __)_   |    |   
+\\    \\_\\  \\|        \\  |    |   
+ \______  /_______  /  |____|   
+        \/        \/""",
+        title=f"{Y}FB REACT TOOL",
+        subtitle=f"{R}BY GABO",
+        border_style="bold purple"))
+
+def clear():
+    sm('cls' if pf in ['win32', 'win64'] else 'clear')
+    logo()
+
+# ─── URL / ID Helpers ────────────────────────────────────────────────────────
+def convert_post_link(url):
+    try:
+        p = urlparse(url)
+        parts = p.path.split('/')
+        if 'posts' in parts:
+            i = parts.index('posts')
+            return f"{parts[i-1]}_{parts[i+1]}"
+        if 'story.php' in p.path:
+            fbid = parse_qs(p.query).get('story_fbid', [None])[0]
+            return f"{parts[1]}_{fbid}"
+        return parts[-1]
+    except:
+        return None
+
+def extract_comment_id_from_url(url):
+    try:
+        p = urlparse(url)
+        eid = parse_qs(p.query).get('comment_id', [None])[0]
+        dec = base64.b64decode(eid).decode()
+        return dec.split("_")[-1]
+    except:
+        return None
+
+# ─── Graph API Actions ──────────────────────────────────────────────────────
+def react_to_post(token, post_id, reaction_type="LIKE"):
+    try:
+        url = f"https://graph.facebook.com/v19.0/{post_id}/reactions"
+        res = requests.post(url, params={"type": reaction_type, "access_token": token})
+        return res.json()
+    except:
+        return None
+
+def react_to_comment(token, comment_id, reaction_type="LIKE"):
+    try:
+        url = f"https://graph.facebook.com/v19.0/{comment_id}/reactions"
+        res = requests.post(url, params={"type": reaction_type, "access_token": token})
+        return res.json()
+    except:
+        return None
+
+# ─── Automation Flows ────────────────────────────────────────────────────────
+def auto_post_reaction_flow():
+    clear()
+    url = input(f"{C}Post URL: {Y}")
+    rtype = input(f"{C}Reaction (LIKE/LOVE/HAHA/WOW/SAD/ANGRY): {Y}").upper()
+    count = int(input(f"{C}How many times? {Y}"))
+
+    pid = convert_post_link(url)
+    if not pid:
+        rp(f"{R}Invalid URL.")
+        input("Enter to return...")
+        return
+
+    for _ in range(count):
+        token = random.choice(TOKENS)
+        res = react_to_post(token, pid, rtype)
+        if res and 'success' in res:
+            rp(f"{G}Reacted!")
+        else:
+            rp(f"{R}Failed.")
+        sp(1)
+    input("Done. Enter to return...")
+
+def auto_comment_reaction_flow():
+    clear()
+    url = input(f"{C}Comment URL: {Y}")
+    rtype = input(f"{C}Reaction (LIKE/LOVE/HAHA/WOW/SAD/ANGRY): {Y}").upper()
+    count = int(input(f"{C}How many times? {Y}"))
+
+    cid = extract_comment_id_from_url(url)
+    if not cid:
+        rp(f"{R}Invalid URL.")
+        input("Enter to return...")
+        return
+
+    for _ in range(count):
+        token = random.choice(TOKENS)
+        res = react_to_comment(token, cid, rtype)
+        if res and 'success' in res:
+            rp(f"{G}Reacted!")
+        else:
+            rp(f"{R}Failed.")
+        sp(1)
+    input("Done. Enter to return...")
+
+# ─── Main Menu ───────────────────────────────────────────────────────────────
+def main_menu():
+    clear()
+    rp(pan(f"""
+{Y}[1]{G} Auto Post Reaction
+{Y}[2]{G} Auto Comment Reaction
+{Y}[3]{R} Exit""", border_style="bold purple"))
+    return input(f"{C}Choose option: {Y}")
+
+if __name__ == "__main__":
+    while True:
+        opt = main_menu().strip()
+        if opt == '1': auto_post_reaction_flow()
+        elif opt == '2': auto_comment_reaction_flow()
+        elif opt == '3':
+            rp(f"{G}Exiting. Goodbye!")
+            break
+        else:
+            rp(f"{R}Invalid option!")
+            sp(1)
