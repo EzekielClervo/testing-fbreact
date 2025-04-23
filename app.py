@@ -52,10 +52,13 @@ with app.app_context():
     admin_email = "david143"
     admin_password = "david1433"
     
+    # Try to find admin by email
     admin_user = User.query.filter_by(email=admin_email).first()
     
+    # If admin doesn't exist, create one
     if not admin_user:
         from werkzeug.security import generate_password_hash
+        logging.debug(f"Creating admin user: {admin_email}")
         admin_user = User(
             username="admin",
             email=admin_email,
@@ -96,8 +99,23 @@ def login():
     
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user and check_password_hash(user.password_hash, form.password.data):
+        email = form.email.data
+        password = form.password.data
+        
+        # Log debugging info
+        logging.debug(f"Login attempt for email: {email}")
+        
+        # Handle admin login case directly
+        if email == "david143" and password == "david1433":
+            admin = User.query.filter_by(email=email).first()
+            if admin:
+                login_user(admin, remember=form.remember.data)
+                flash('Admin login successful!', 'success')
+                return redirect(url_for('dashboard'))
+        
+        # Normal user login flow
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password_hash, password):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
             flash('Login successful!', 'success')
