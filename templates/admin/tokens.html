@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+
+{% block title %}Manage Tokens{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2><i class="fas fa-key"></i> Manage Tokens</h2>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Back to Admin
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-plus-circle"></i> Add New Token</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="">
+                            {{ form.hidden_tag() }}
+                            <div class="mb-3">
+                                {{ form.token.label(class="form-label") }}
+                                {% if form.token.errors %}
+                                    {{ form.token(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.token.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.token(class="form-control", placeholder="Enter Facebook access token") }}
+                                {% endif %}
+                                <small class="form-text text-muted">Paste a valid Facebook Graph API access token here</small>
+                            </div>
+                            <div class="d-grid gap-2">
+                                {{ form.submit(class="btn btn-primary") }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h4 class="mt-4 mb-3"><i class="fas fa-list"></i> Current Tokens</h4>
+        
+        {% for token in tokens %}
+        <div class="token-box">
+            <div class="token-value">{{ token.value[:20] }}...{{ token.value[-20:] }}</div>
+            <div class="text-muted small">Added: {{ token.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+            <div class="token-actions">
+                <button class="btn btn-sm btn-outline-primary btn-copy" data-token="{{ token.value }}" data-bs-toggle="tooltip" title="Copy Token">
+                    <i class="fas fa-copy"></i>
+                </button>
+                <form action="{{ url_for('delete_token', token_id=token.id) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-danger btn-delete" data-bs-toggle="tooltip" title="Delete Token">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if tokens|length == 0 %}
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle"></i> No tokens found. Add a token using the form above.
+        </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <div class="alert alert-info">
+                <h5 class="alert-heading"><i class="fas fa-info-circle"></i> About Facebook Tokens</h5>
+                <p>Facebook access tokens are required for the FB React Tool to interact with Facebook's Graph API. These tokens allow the application to add reactions to posts and comments.</p>
+                <hr>
+                <p class="mb-0">Tokens should be kept secure and never shared publicly. All actions performed with these tokens will be associated with the Facebook account that generated them.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2><i class="fas fa-user-shield"></i> Admin Dashboard</h2>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-primary">
+            <h4 class="alert-heading"><i class="fas fa-user-shield"></i> Welcome, Admin!</h4>
+            <p>This is your admin control panel. Here you can manage users and tokens for the FB React Tool.</p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card stat-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Users</h3>
+                    <p>Manage user accounts</p>
+                    <a href="{{ url_for('admin_users') }}" class="btn btn-primary mt-2">
+                        <i class="fas fa-users"></i> Manage Users
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card">
+                    <i class="fas fa-key"></i>
+                    <h3>Tokens</h3>
+                    <p>Manage Facebook access tokens</p>
+                    <a href="{{ url_for('admin_tokens') }}" class="btn btn-primary mt-2">
+                        <i class="fas fa-key"></i> Manage Tokens
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <h3>Dashboard</h3>
+                    <p>Return to user dashboard</p>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary mt-2">
+                        <i class="fas fa-tachometer-alt"></i> User Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-info-circle"></i> System Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Total Users</td>
+                                            <td>{{ user_count }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total Tokens</td>
+                                            <td>{{ token_count }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Admin Account</td>
+                                            <td>{{ current_user.username }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-warning">
+                                    <h5 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Admin Privileges</h5>
+                                    <p>As an admin, you have full control over all user accounts and tokens. Please use these privileges responsibly.</p>
+                                    <hr>
+                                    <p class="mb-0">You can add/remove users and tokens as needed to manage the system.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

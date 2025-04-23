@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="logo-container mb-4">
+        <pre class="ascii-logo">
+  ______________________________
+ /  _____/\_   _____/\__    ___/
+/   \  ___ |    __)_   |    |   
+\    \_\  \|        \  |    |   
+ \______  /_______  /  |____|   
+        \/        \/
+</pre>
+        <div class="logo-title">FB REACT TOOL</div>
+        <div class="logo-subtitle">Automated Reaction System</div>
+    </div>
+
+    <h1 class="hero-title">Facebook Reaction Automation</h1>
+    <p class="hero-subtitle">Boost your social media presence with automated reactions on posts and comments</p>
+    
+    {% if current_user.is_authenticated %}
+    <div class="d-grid gap-2 col-6 mx-auto">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg btn-pulse">
+            <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+        </a>
+    </div>
+    {% else %}
+    <div class="d-grid gap-2 col-6 mx-auto">
+        <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg mb-2">
+            <i class="fas fa-sign-in-alt"></i> Login
+        </a>
+        <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-lg">
+            <i class="fas fa-user-plus"></i> Register
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="features-section">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card feature-card">
+                <i class="fas fa-thumbs-up"></i>
+                <h3>Post Reactions</h3>
+                <p>Automatically add reactions to any Facebook post with customizable reaction types</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card feature-card">
+                <i class="fas fa-comment"></i>
+                <h3>Comment Reactions</h3>
+                <p>Boost engagement by adding reactions to comments on your posts</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card feature-card">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Secure & Private</h3>
+                <p>Your data is secure with our user authentication system</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

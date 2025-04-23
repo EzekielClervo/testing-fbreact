@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+
+{% block title %}Comment Reaction{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2><i class="fas fa-comment"></i> Comment Reaction</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.comment_url.label(class="form-label") }}
+                        {% if form.comment_url.errors %}
+                            {{ form.comment_url(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.comment_url.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.comment_url(class="form-control", placeholder="https://www.facebook.com/username/posts/123456789?comment_id=abcdef") }}
+                        {% endif %}
+                        <small class="form-text text-muted">Paste the full Facebook comment URL here</small>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.reaction_type.label(class="form-label") }}
+                        {% if form.reaction_type.errors %}
+                            {{ form.reaction_type(class="form-select is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.reaction_type.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.reaction_type(class="form-select") }}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.count.label(class="form-label") }}
+                        {% if form.count.errors %}
+                            {{ form.count(class="form-control is-invalid", type="number", min="1", max="100") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.count.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.count(class="form-control", type="number", min="1", max="100", value="10") }}
+                        {% endif %}
+                        <small class="form-text text-muted">Number of reactions to add (max 100)</small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-info-circle"></i> Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>This tool allows you to automatically add reactions to any comment on a Facebook post. Simply paste the comment URL, select the reaction type, and specify how many reactions you want to add.</p>
+                        
+                        <h6>How to get a comment URL:</h6>
+                        <ol>
+                            <li>Find the comment on Facebook</li>
+                            <li>Click on the comment timestamp (e.g., "2 hours ago")</li>
+                            <li>Copy the URL from your browser's address bar</li>
+                        </ol>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Make sure the comment is on a public post for best results.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
