@@ -58,6 +58,19 @@ A web-based Facebook reaction automation tool with user authentication, admin pa
    - Review the proposed resources
    - Click "Apply" to start the deployment
 
+### Option 3: Using an Existing Database (Free Tier Workaround)
+
+If you already have a free tier PostgreSQL database on Render and can't create another one:
+
+1. Get your existing database connection URL from Render dashboard
+2. Edit the render.yaml file in your repository:
+   - Remove the database section completely
+   - Update the DATABASE_URL environment variable to use your existing database
+
+3. When deploying, you'll need to:
+   - Create a new schema in your existing database for this application
+   - Set the DATABASE_URL environment variable to include the schema in the connection string
+
 ## Local Development
 
 1. Set up environment variables:

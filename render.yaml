@@ -10,13 +10,6 @@ services:
       - key: SESSION_SECRET
         generateValue: true
       - key: DATABASE_URL
-        fromDatabase:
-          name: fb-react-db
-          property: connectionString
+        value: ${YOUR_EXISTING_DATABASE_URL}
       - key: PYTHON_VERSION
         value: 3.11.5
-
-databases:
-  - name: fb-react-db
-    region: ohio
-    plan: free
